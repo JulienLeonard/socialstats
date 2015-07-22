@@ -37,27 +37,23 @@ def flickr_photo_stats(flickr,api_key,photo):
 #
 def flickr_photos_stats(flickr,api_key,user_id):
     result = []
-    perpage = 10
+
     pageindex = 1
-    rsp = flickr.people_getPhotos(api_key=api_key,user_id=user_id,per_page=perpage,page=pageindex)
+    rsp = flickr.people_getPhotos(api_key=api_key,user_id=user_id,per_page=10,page=pageindex)
     photoss = list(rsp.iter("photos"))[0];
 
     while int(photoss.attrib['page']) < int(photoss.attrib['pages']):
-        puts("page index",pageindex)
-        time.sleep(10)
         photolist = list(photoss.iter("photo"));
-        photoindex = 0
+
+        # get photo stats and add data to cache structure
+        # use timer to prevent too frequent API calls
         for photo in photolist:
             time.sleep(1)
-
-            # get photo stats and add data to cache structure
             result.append(flickr_photo_stats(flickr,api_key,photo))
-
-            # iter to the next photo
-            photoindex += 1
             
         # iter to the next page
         pageindex += 1
+        time.sleep(5)
         rsp = flickr.people_getPhotos(api_key=api_key,user_id="22283623@N00",per_page=perpage,page=pageindex)
         photoss = list(rsp.iter("photos"))[0];
 
@@ -66,8 +62,8 @@ def flickr_photos_stats(flickr,api_key,user_id):
 #
 # format the photos stats into a xml string
 #
-def flickr_xml_photosstats(photosstats,timestamp):
-    result = "<flickr timestamp=\"" + str(timestamp) + "\">\n"
+def flickr_xml_photosstats(photosstats,stimestamp):
+    result = "<flickr timestamp=\"" + stimestamp + "\">\n"
     for photostats in photosstats:
         (title,timestamp,total,favdates) = photostats
         result += "   <photo title=\"" + title + "\" \t timestamp=\"" + timestamp + "\" \t count=\"" + total + "\" >\n"
@@ -85,7 +81,7 @@ def flickr_xml_photosstats(photosstats,timestamp):
 # - user_id    : your flickr user id
 # - filepath   : the path of the xml file where the data will be dumped into
 #
-def flickr_dump(api_secret,api_key,user_id,filepath):
+def flickr_dump(api_secret,api_key,user_id,outputxmlfilepath):
 
     #
     # connect to flickr with flick api
@@ -104,12 +100,12 @@ def flickr_dump(api_secret,api_key,user_id,filepath):
     #
     # format the data into xml
     #
-    xmlphotostats = flickr_xml_photosstats(photosstats,time.time())
+    xmlphotostats = flickr_xml_photosstats(photosstats,str(time.time()))
 
     #
     # dump the xml result in a file
     #
-    output=open(filepath, 'w+')
+    output=open(outputxmlfilepath, 'w+')
     output.write(xmlphotostats.encode('utf8'))
     output.close()
 
