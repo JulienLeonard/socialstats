@@ -2,7 +2,40 @@ import pytumblr
 import time
 from utils import *
 
-def tumblr_stats(cleitn)
+#
+# get tumblr stats
+# format (nfollowers, timestamp, [(postname,posttimestamp,postcount)])
+#
+def tumblr_stats(client,userid):
+    # get the number of followers
+    nfollowers = client.followers(userid, offset=0, limit=20)['total_users'];
+
+    # get all the posts with their count
+    poststats = []
+    limit = 20
+    posts = client.posts(userid, offset=0, limit=limit)['posts'];
+    offset = 0
+    while len(posts) > limit - 1:
+        for post in posts:
+            poststats.append((post['slug'],post['timestamp'],post['note_count']))
+        offset += limit
+        posts = client.posts(userid, offset=offset, limit=limit)['posts'];
+
+    return (nfollowers, time.time(), poststats)
+
+#
+# get tumblr stats and format them into xml
+#
+def tumblr_xmlstats(stats):
+    (nfollowers,timestamp,poststats) = stats
+
+    xmlcontent = "<tumblr nfollowers=\"" + str(nfollowers) + "\" timestamp=\"" + str(timestamp) + "\">\n"
+    for poststat in poststats:
+        (postname,posttimestamp,postcount) = poststat
+        xmlcontent = xmlcontent + "\t<post name=\"" + postname + "\" \t timestamp=\"" + str(posttimestamp) + "\" \t count=\"" + str(postcount) + "\"/>\n"
+    xmlcontent = xmlcontent + "</tumblr>\n"
+    
+    return xmlcontent
 
 #
 # dump tumblr stats into a xml output file
@@ -11,34 +44,20 @@ def tumblr_dump(oAuthConsumerKey, secretKey, tumblr3addr, tumblr4addr, userid, x
     #
     # connect tumblr client
     #
-    client = pytumblr.TumblrRestClient( oAuthConsumerKey,
-                                        secretKey,
-                                        tumblr3addr,
-                                        tumblr4addr )
+    client = pytumblr.TumblrRestClient( oAuthConsumerKey, secretKey, tumblr3addr, tumblr4addr )
  
     #
     # get the stats and format xml content
     #
-    
-    # get the number of followers
-    nfollowers = client.followers(userid, offset=0, limit=20)['total_users'];
+    stats = tumblr_stats(client,userid)
 
-    # get all the posts with their count
-    limit = 20
-    posts = client.posts(userid, offset=0, limit=limit)['posts'];
-    index = 0
-    offset = 0
-    content = "<tumblr nfollowers=\"" + str(nfollowers) + "\" timestamp=\"" + str(time.time()) + "\">\n"
-    while len(posts) > limit - 1:
-        for post in posts:
-            content = content + "\t<post name=\"" + post['slug'] + "\" \t timestamp=\"" + str(post['timestamp']) + "\" \t count=\"" + str(post['note_count']) + "\"/>\n"
-            index += 1
-        offset += limit
-        posts = client.posts(userid, offset=offset, limit=limit)['posts'];
-    content = content + "</tumblr>\n"
+    #
+    # format stats to xml
+    #
+    xmlstats = tumblr_xmlstats(stats)
 
     # dump content
     output=open(xmloutputfilepath, 'w+')
-    output.write(content)
+    output.write(xmlstats)
     output.close()
 
