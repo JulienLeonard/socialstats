@@ -2,10 +2,12 @@ import pytumblr
 import time
 from utils import *
 
+def tumblr_stats(cleitn)
+
 #
 # dump tumblr stats into a xml output file
 #
-def tumblr_dump(oAuthConsumerKey, secretKey, tumblr3addr, tumblr4addr, xmloutputfilepath):
+def tumblr_dump(oAuthConsumerKey, secretKey, tumblr3addr, tumblr4addr, userid, xmloutputfilepath):
     #
     # connect tumblr client
     #
@@ -19,11 +21,11 @@ def tumblr_dump(oAuthConsumerKey, secretKey, tumblr3addr, tumblr4addr, xmloutput
     #
     
     # get the number of followers
-    nfollowers = client.followers('julienleonard', offset=0, limit=20)['total_users'];
+    nfollowers = client.followers(userid, offset=0, limit=20)['total_users'];
 
     # get all the posts with their count
     limit = 20
-    posts = client.posts('julienleonard', offset=0, limit=limit)['posts'];
+    posts = client.posts(userid, offset=0, limit=limit)['posts'];
     index = 0
     offset = 0
     content = "<tumblr nfollowers=\"" + str(nfollowers) + "\" timestamp=\"" + str(time.time()) + "\">\n"
@@ -32,7 +34,7 @@ def tumblr_dump(oAuthConsumerKey, secretKey, tumblr3addr, tumblr4addr, xmloutput
             content = content + "\t<post name=\"" + post['slug'] + "\" \t timestamp=\"" + str(post['timestamp']) + "\" \t count=\"" + str(post['note_count']) + "\"/>\n"
             index += 1
         offset += limit
-        posts = client.posts('julienleonard', offset=offset, limit=limit)['posts'];
+        posts = client.posts(userid, offset=offset, limit=limit)['posts'];
     content = content + "</tumblr>\n"
 
     # dump content
