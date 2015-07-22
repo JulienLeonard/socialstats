@@ -9,7 +9,9 @@ import sys
 from basics import *
 import xml.etree.ElementTree
 
-
+#
+# get one photo's stats 
+#
 def flickr_photo_stats(flickr,api_key,photo):
     # get the title
     phototitle = photo.attrib['title']
@@ -30,7 +32,9 @@ def flickr_photo_stats(flickr,api_key,photo):
 
     return (phototitle, phototimestamp, favcount, favedates)
 
-
+#
+# get the photos data
+#
 def flickr_photos_stats(flickr,api_key,user_id):
     result = []
     perpage = 10
@@ -59,7 +63,9 @@ def flickr_photos_stats(flickr,api_key,user_id):
 
     return result
 
-
+#
+# format the photos stats into a xml string
+#
 def flickr_xml_photosstats(photosstats,timestamp):
     result = "<flickr timestamp=\"" + str(timestamp) + "\">\n"
     for photostats in photosstats:
