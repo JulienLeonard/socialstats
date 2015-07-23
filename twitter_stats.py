@@ -4,66 +4,69 @@ import time
 import datetime
 
 #
-# dump twitter stats into a xml file
+# get twitter stats
+# result in the form (nfollowers,timestamp,[(tweetid,tweettimestamp,tweetnfavs,tweetnretweets,tweettext)])
 #
-def twitter_dump(consumer_key, consumer_secret, access_token, access_token_secret, xmloutputfilepath): 
-
-
-    # OAuth process, using the keys and tokens
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_token_secret)
-
-    # Creation of the actual interface, using authentication
-    api = tweepy.API(auth)
-
-    # check me
-    user = api.me()
-
-    print('Name: ' + user.name)
-    print('Location: ' + user.location)
-    print('Friends: ' + str(user.followers_count))
-
-    content = "<twitter nfollowers=\"" + str(user.followers_count) + "\" timestamp=\"" + str(time.time()) + "\">\n"
-
-
-    # public_tweets = api.home_timeline()
-    # for tweet in public_tweets:
-    #    print tweet.text
-
-    #for follower in api.followers_ids('twitter'):
-    #    print api.get_user(follower).screen_name
-
-    #results = api.search(q='julleor')
-
-    #for tweet in results:
-    #    puts("date",(tweet.created_at - datetime.datetime(1970,1,1)).total_seconds())
+def twitter_stats(api,user,screenname):
+    
+    nfollowers = user.followers_count
+    timestamp  = time.time()
 
     limit = 100
-    timeline = api.user_timeline(screen_name='julleor', count=limit)
+    timeline = api.user_timeline(screen_name=screenname, count=limit)
     index = 0
     maxid = ""
+    tweetstats = []
     while True:
         for tweet in timeline:
-            content = content + "\t<post name=\"" + str(tweet.id) + "\" \t timestamp=\"" + str(tweet.created_at) + "\" \t fav_count=\"" + str(tweet.favorite_count) + "\" \t rt_count=\"" + str(tweet.retweet_count) + "\">" + tweet.text + "</post>\n"
-            print ("Text:", tweet.text)
-            #print ("Number", str(index))
-            #print ("ID:", tweet.id)
-            #print ("User ID:", tweet.user.id)
-            #print ("Text:", tweet.text)
-            #print ("Created:", tweet.created_at)
-            #print ("Favorited:", tweet.favorited)
-            #print ("Retweeted:", tweet.retweeted)
-            #print ("Retweet count:", tweet.retweet_count)
-            #print ("Favorite count:", tweet.favorite_count)
+            tweetid         = tweet.id
+            tweettimestamp  = tweet.created_at
+            tweetnfavs      = tweet.favorite_count
+            tweetnretweets  = tweet.retweet_count
+            tweettext       = tweet.text
+            tweetstats.append((tweetid,tweettimestamp,tweetnfavs,tweetnretweets,tweettext))
             index += 1
             maxid = tweet.id
         if len(timeline) < limit:
             break
         else:
-            timeline = api.user_timeline(screen_name='julleor', count=limit, max_id=maxid)
+            timeline = api.user_timeline(screen_name=screenname, count=limit, max_id=maxid)
 
+    return (nfollowers,timeline,tweetstats)
 
-    output=open(xmloutputfilepath, 'w+')
+#
+# format stats into xml string
+#
+def twitter_xmlstats(stats):    
+    (nfollowers,timeline,tweetstats) = tweetstats
+
+    content = "<twitter nfollowers=\"" + str(nfollowers) + "\" timestamp=\"" + str(timestamp) + "\">\n"
+    for tweetstat in tweetstats:
+        (tweetid,tweettimestamp,tweetnfavs,tweetnretweets,tweettext) = tweetstat
+        content = content + "\t<post name=\"" + str(tweetid) + "\" \t timestamp=\"" + str(tweettimestamp) + "\" \t fav_count=\"" + str(tweetmfavs) + "\" \t rt_count=\"" + str(tweetnretweets) + "\">" + tweettext + "</post>\n"
     content = content + "</twitter>\n"
-    output.write(content.encode('utf8'))
+
+    return content
+    
+    
+
+#
+# dump twitter stats into a xml file
+#
+def twitter_dump(consumer_key, consumer_secret, access_token, access_token_secret, screenname, xmloutputfilepath): 
+    # OAuth process, using the keys and tokens
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+    api = tweepy.API(auth)
+    user = api.me()
+
+    # get the stats
+    stats = twitter_stats(api,user,screenname)
+
+    # format the stats
+    xmlcontent = twitter_xmlstats(stats)
+
+    # dump the stats
+    output=open(xmloutputfilepath, 'w+')
+    output.write(xmlcontent.encode('utf8'))
     output.close()
