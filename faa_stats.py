@@ -20,13 +20,14 @@ def faa_login(driver, faa_username, faa_password):
     elem = driver.find_element_by_name("password")
     elem.send_keys(faa_password)
     elem.send_keys(Keys.RETURN)
+    return driver
     
 #
 # get the number of visitors
 #
 def faa_nvisitors(driver):
     driver.get("http://fineartamerica.com/controlpanel/statistics.html?tab=visitors")
-    nvisitors = "-"
+    nvisitors = ""
     elems = driver.find_elements(By.XPATH, '//p')
     for elem in elems:
         text = elem.text
@@ -55,7 +56,7 @@ def faa_nfollowers(driver):
 #    
 def faa_nviews(driver):
     driver.get("http://fineartamerica.com/profiles/" + faa_profile + ".html")
-    nviews = "-"
+    nviews = ""
     elems = driver.find_elements(By.XPATH,'//p')
     viewfound = False
     for elem in elems:
@@ -71,7 +72,7 @@ def faa_nviews(driver):
 # format faa stats into xml string
 #
 def faa_xmlstats(nviews,nfollowers,nvisitors,timestamp):
-    xmlcontent = "<fineartamerica nviews=\"" + nviews + "\" nfollowers=\"" + nfollowers + "\" nvisitors=\"" + nvisitors + "\" timestamp=\"" + str(timestamp) + "\">\n"
+    xmlcontent = "<fineartamerica nviews=\"" + nviews + "\" nfollowers=\"" + nfollowers + "\" nvisitors=\"" + nvisitors + "\" timestamp=\"" + timestamp + "\">\n"
     xmlcontent = xmlcontent + "</fineartamerica>\n"
     return xmlcontent
 
@@ -82,11 +83,9 @@ def faa_dump(faa_username,faa_password,faa_profile,xmloutputfilepath):
 
     # create selenium webdriver
     driver = webdriver.Firefox()
-    driver.maximize_window()
-    driver.implicitly_wait(3)
 
-    # faa loging
-    faa_login(driver, faa_username, faa_password)
+    # faa login
+    driver = faa_login(driver, faa_username, faa_password)
 
     # get stats
     nvisitors  = faa_nvisitors(driver)
@@ -96,7 +95,7 @@ def faa_dump(faa_username,faa_password,faa_profile,xmloutputfilepath):
     driver.close()
 
     # format output content
-    xmlcontent = faa_xmlstats(nviews,nfollowers,nvisitors,time.time())
+    xmlcontent = faa_xmlstats(nviews,nfollowers,nvisitors,str(time.time()))
 
     # dump xml into xmloutputfilepath
     output=open(xmloutputfilepath, 'w+')
