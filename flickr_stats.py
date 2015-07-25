@@ -54,7 +54,7 @@ def flickr_photos_stats(flickr,api_key,user_id):
         # iter to the next page
         pageindex += 1
         time.sleep(5)
-        rsp = flickr.people_getPhotos(api_key=api_key,user_id="22283623@N00",per_page=perpage,page=pageindex)
+        rsp = flickr.people_getPhotos(api_key=api_key,user_id=userid,per_page=perpage,page=pageindex)
         photoss = list(rsp.iter("photos"))[0];
 
     return result
@@ -110,4 +110,7 @@ def flickr_dump(api_secret,api_key,user_id,outputxmlfilepath):
     output.close()
 
 
+#
+# usage
 # flickr_dump("123456789abcdef0","123456789abcdef0123456789abcdef0","12345678@N01","C:/stats/flickr_stats.xml")
+#

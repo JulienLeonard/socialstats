@@ -40,11 +40,11 @@ def tumblr_xmlstats(stats):
 #
 # dump tumblr stats into a xml output file
 #
-def tumblr_dump(oAuthConsumerKey, secretKey, tumblr3addr, tumblr4addr, userid, xmloutputfilepath):
+def tumblr_dump(consumer_key, secret_key, access_token, access_token_secret, userid, xmloutputfilepath):
     #
     # connect tumblr client
     #
-    client = pytumblr.TumblrRestClient( oAuthConsumerKey, secretKey, tumblr3addr, tumblr4addr )
+    client = pytumblr.TumblrRestClient( consumer_key, secret_key, access_token, access_token_secret )
  
     #
     # get the stats and format xml content
