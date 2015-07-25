@@ -10,26 +10,23 @@ import time
 from utils import *
 
 #
-# dump faa stats into xml file
+# login to faa
 #
-def faa_dump(username,password,faa_profile,filepath):
-    driver = webdriver.Firefox()
-    driver.maximize_window()
-    driver.implicitly_wait(3)
-
-    
+def faa_login(driver, faa_username, faa_password):
     driver.get("https://fineartamerica.com/loginartist.php")
-
     elem = driver.find_element_by_name("username")
-    elem.send_keys(username)
+    elem.send_keys(faa_username)
     elem.send_keys(Keys.RETURN)
     elem = driver.find_element_by_name("password")
-    elem.send_keys(password)
+    elem.send_keys(faa_password)
     elem.send_keys(Keys.RETURN)
-
-    # get nvisitors
+    
+#
+# get the number of visitors
+#
+def faa_nvisitors(driver):
     driver.get("http://fineartamerica.com/controlpanel/statistics.html?tab=visitors")
-    nvisitors = "-1"
+    nvisitors = "-"
     elems = driver.find_elements(By.XPATH, '//p')
     for elem in elems:
         text = elem.text
@@ -37,20 +34,28 @@ def faa_dump(username,password,faa_profile,filepath):
         if len(items) > 2 and items[0] == "Total" and items[1] == "Visitors:":
             nvisitors = items[2]
             break
+    return nvisitors
 
-    # get nfollowers
+#
+# get the number of followers
+#
+def faa_nfollowers(driver):
     driver.get("http://fineartamerica.com/profiles/" + faa_profile + ".html")
-
-    nfollowers = "-1"
+    nfollowers = ""
     elems = driver.find_elements(By.XPATH,'//a')
     for elem in elems:
         # puts("a href",elem.get_attribute("href"))
         if elem.get_attribute("href") == u"http://fineartamerica.com/profiles/" + profiles + ".html?tab=watchlist&type=others":
             nfollowers = elem.text
             break
+    return nfollowers
 
-    # get nviews
-    nviews = "-1"
+#
+# get the number of views
+#    
+def faa_nviews(driver):
+    driver.get("http://fineartamerica.com/profiles/" + faa_profile + ".html")
+    nviews = "-"
     elems = driver.find_elements(By.XPATH,'//p')
     viewfound = False
     for elem in elems:
@@ -60,14 +65,43 @@ def faa_dump(username,password,faa_profile,filepath):
         elif viewfound == True:
             nviews = elem.text
             break
+    return nviews
 
-    content = "<fineartamerica nviews=\"" + nviews + "\" nfollowers=\"" + nfollowers + "\" nvisitors=\"" + nvisitors + "\" timestamp=\"" + str(time.time()) + "\">\n"
-    content = content + "</fineartamerica>\n"
+#
+# format faa stats into xml string
+#
+def faa_xmlstats(nviews,nfollowers,nvisitors,timestamp):
+    xmlcontent = "<fineartamerica nviews=\"" + nviews + "\" nfollowers=\"" + nfollowers + "\" nvisitors=\"" + nvisitors + "\" timestamp=\"" + str(timestamp) + "\">\n"
+    xmlcontent = xmlcontent + "</fineartamerica>\n"
+    return xmlcontent
 
-    output=open(filepath, 'w+')
-    output.write(content.encode('utf8'))
-    output.close()
+#
+# fetch faa stats and dump them into xml file
+#
+def faa_dump(faa_username,faa_password,faa_profile,xmloutputfilepath):
+
+    # create selenium webdriver
+    driver = webdriver.Firefox()
+    driver.maximize_window()
+    driver.implicitly_wait(3)
+
+    # faa loging
+    faa_login(driver, faa_username, faa_password)
+
+    # get stats
+    nvisitors  = faa_nvisitors(driver)
+    nfollowers = faa_nfollowers(driver)
+    nviews     = faa_nviews(driver)
+
     driver.close()
+
+    # format output content
+    xmlcontent = faa_xmlstats(nviews,nfollowers,nvisitors,time.time())
+
+    # dump xml into xmloutputfilepath
+    output=open(xmloutputfilepath, 'w+')
+    output.write(xmlcontent.encode('utf8'))
+    output.close()
     
 
 
