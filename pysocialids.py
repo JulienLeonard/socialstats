@@ -54,4 +54,24 @@ def tumblr_access_token_secret():
 def tumblr_userid():
     return ""
 
+#
+# faa
+#
+
+def faa_username():
+    return ""
+
+def faa_password():
+    return ""
+
+def faa_profile():
+    return ""
+
+#
+# wordpress
+#
+
+def wordpress_blogid():
+    return ""
+
 
