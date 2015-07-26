@@ -1,6 +1,6 @@
 #
 # fetch all the data from the different social sites, to dump files in accordance
-# create a dedicated dir under social/%timestamp%/ to gather the different files
+# create a dedicated dir under dump_directory()/%timestamp%/ to gather the different files
 # analysed after by Tcl to generate graphs in svg and javascript
 #
 
@@ -71,7 +71,9 @@ def dump_social(dump_directory,social_type):
         faa_stats.dump(faa_username(),faa_password(),faa_profile(),faa_filepath)
         puts("stop faa")
 
-
+#
+# main call: usage: main social_type (can be tumblr, flickr, twitter, wordpress, or fineartamerica)
+#
 def main():
     social_type  = sys.argv[1]
     dump_social(dump_directory,social_type)
