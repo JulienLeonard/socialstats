@@ -7,7 +7,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 import selenium
 import sys
 import time
-from utils import *
+# from utils import *
 
 #
 # login to faa
@@ -21,11 +21,17 @@ def faa_login(driver, faa_username, faa_password):
     elem.send_keys(faa_password)
     elem.send_keys(Keys.RETURN)
     return driver
+
+#
+# remove "," from numbers parsed from faa
+#
+def faa_format_number(sv):
+    return sv.replace(",","")
     
 #
-# get the number of visitors
+# get the number of visitors (faa_profile is useless here, but added for synetry)
 #
-def faa_nvisitors(driver):
+def faa_nvisitors(driver,faa_profile):
     driver.get("http://fineartamerica.com/controlpanel/statistics.html?tab=visitors")
     nvisitors = ""
     elems = driver.find_elements(By.XPATH, '//p')
@@ -35,26 +41,26 @@ def faa_nvisitors(driver):
         if len(items) > 2 and items[0] == "Total" and items[1] == "Visitors:":
             nvisitors = items[2]
             break
-    return nvisitors
+    return faa_format_number(nvisitors)
 
 #
 # get the number of followers
 #
-def faa_nfollowers(driver):
+def faa_nfollowers(driver,faa_profile):
     driver.get("http://fineartamerica.com/profiles/" + faa_profile + ".html")
     nfollowers = ""
     elems = driver.find_elements(By.XPATH,'//a')
     for elem in elems:
         # puts("a href",elem.get_attribute("href"))
-        if elem.get_attribute("href") == u"http://fineartamerica.com/profiles/" + profiles + ".html?tab=watchlist&type=others":
+        if elem.get_attribute("href") == u"http://fineartamerica.com/profiles/" + faa_profile + ".html?tab=watchlist&type=others":
             nfollowers = elem.text
             break
-    return nfollowers
+    return faa_format_number(nfollowers)
 
 #
 # get the number of views
 #    
-def faa_nviews(driver):
+def faa_nviews(driver,faa_profile):
     driver.get("http://fineartamerica.com/profiles/" + faa_profile + ".html")
     nviews = ""
     elems = driver.find_elements(By.XPATH,'//p')
@@ -66,7 +72,7 @@ def faa_nviews(driver):
         elif viewfound == True:
             nviews = elem.text
             break
-    return nviews
+    return faa_format_number(nviews)
 
 #
 # format faa stats into xml string
@@ -88,9 +94,9 @@ def faa_dump(faa_username,faa_password,faa_profile,xmloutputfilepath):
     driver = faa_login(driver, faa_username, faa_password)
 
     # get stats
-    nvisitors  = faa_nvisitors(driver)
-    nfollowers = faa_nfollowers(driver)
-    nviews     = faa_nviews(driver)
+    nvisitors  = faa_nvisitors(driver,faa_profile)
+    nfollowers = faa_nfollowers(driver,faa_profile)
+    nviews     = faa_nviews(driver,faa_profile)
 
     driver.close()
 
