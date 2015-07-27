@@ -7,7 +7,6 @@ from selenium.webdriver.common.action_chains import ActionChains
 import selenium
 import sys
 import time
-# from utils import *
 
 #
 # login to faa

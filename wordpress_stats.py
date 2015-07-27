@@ -1,4 +1,3 @@
-from utils import *
 import urllib, json
 import time
 import datetime
@@ -6,7 +5,7 @@ import datetime
 #
 # get all wordpress stats data
 #
-def wordpress_stats():
+def wordpress_stats(blogid):
     result = []
     offset = 0
     baseurl = "https://public-api.wordpress.com/rest/v1/sites/" + blogid + "/posts?number=100&offset="
@@ -15,7 +14,7 @@ def wordpress_stats():
         response = urllib.urlopen(url);
         data = json.loads(response.read())
         for post in data['posts']:
-            stats.append((post['title'],post['date'],post['like_count']))
+            result.append((post['title'],post['date'],post['like_count']))
         if len(data['posts']) < 100:
             break
         offset += 100
@@ -28,7 +27,7 @@ def wordpress_stats():
 def wordpress_xmlstats(stats,timestamp):
     xmlcontent = "<wordpress nfollowers=\"" + "NA" + "\" timestamp=\"" + str(timestamp) + "\">\n"
     for stat in stats:
-        (title,data,nfavs) = stat
+        (title,date,nfavs) = stat
         xmlcontent = xmlcontent + "\t<post name=\"" + title + "\" \t timestamp=\"" + str(date) + "\" \t fav_count=\"" + str(nfavs) + "\"></post>\n"
     xmlcontent = xmlcontent + "</wordpress>\n"
     return xmlcontent
@@ -40,7 +39,7 @@ def wordpress_xmlstats(stats,timestamp):
 def wordpress_dump(blogid,xmloutputfilepath): 
 
     # get all the posts
-    stats = wordpress_stats()
+    stats = wordpress_stats(blogid)
 
     # format the data 
     xmlcontent = wordpress_xmlstats(stats,time.time())

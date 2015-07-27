@@ -35,7 +35,7 @@ def twitter_stats(api,user,screenname):
 # format stats into xml string
 #
 def twitter_xmlstats(stats):    
-    (nfollowers,timeline,tweetstats) = tweetstats
+    (nfollowers,timestamp,tweetstats) = stats
 
     content = "<twitter nfollowers=\"" + str(nfollowers) + "\" timestamp=\"" + str(timestamp) + "\">\n"
     for tweetstat in tweetstats:
