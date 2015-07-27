@@ -75,3 +75,8 @@ def wordpress_blogid():
     return ""
 
 
+#
+# to be overloaded in mysocialids
+#
+def pystats_output_dir():
+    return "./"
