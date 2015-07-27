@@ -1,6 +1,6 @@
 import pytumblr
 import time
-from utils import *
+# from utils import *
 
 #
 # get tumblr stats
