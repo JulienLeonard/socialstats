@@ -6,7 +6,6 @@ import sys
 import flickrapi
 import time
 import sys
-from basics import *
 import xml.etree.ElementTree
 
 #
@@ -16,7 +15,10 @@ def flickr_photo_stats(flickr,api_key,photo):
     # get the title
     phototitle = photo.attrib['title']
 
+    print "get photo stats " + phototitle
+
     # get timestamp of the photo
+    time.sleep(1)
     photoinfo      = flickr.photos_getInfo(api_key=api_key,photo_id=photo.attrib['id'])
     photoxml       = list(photoinfo.iter("photo"))[0]
     dates          = list(photoxml.iter("dates"))[0]
