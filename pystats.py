@@ -13,6 +13,8 @@ import twitter_stats
 import wordpress_stats
 import faa_stats
 
+from mysocialids import *
+
 #
 # crate dump dir
 #
