@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, './../lib')
+
 import twitter_stats
 from mysocialids import *
 
