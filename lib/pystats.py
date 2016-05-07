@@ -6,6 +6,7 @@
 
 import os 
 import time
+import sys
 
 import tumblr_stats
 import flickr_stats

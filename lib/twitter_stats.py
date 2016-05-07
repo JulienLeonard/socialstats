@@ -29,7 +29,7 @@ def twitter_stats(api,user,screenname):
         else:
             timeline = api.user_timeline(screen_name=screenname, count=limit, max_id=maxid)
 
-    return (nfollowers,timeline,tweetstats)
+    return (nfollowers,timestamp,tweetstats)
 
 #
 # format stats into xml string
