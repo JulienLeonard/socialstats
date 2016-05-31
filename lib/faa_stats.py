@@ -7,6 +7,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 import selenium
 import sys
 import time
+import os
 
 #
 # login to faa
@@ -86,8 +87,11 @@ def faa_xmlstats(nviews,nfollowers,nvisitors,timestamp):
 #
 def faa_dump(faa_username,faa_password,faa_profile,xmloutputfilepath):
 
+    os.system("taskkill /f /im chromedriver.exe")
+
     # create selenium webdriver
-    driver = webdriver.Firefox()
+    # driver = webdriver.Firefox()
+    driver = webdriver.Chrome('C:/Home/chromedriver.exe')
 
     # faa login
     driver = faa_login(driver, faa_username, faa_password)
@@ -98,6 +102,8 @@ def faa_dump(faa_username,faa_password,faa_profile,xmloutputfilepath):
     nviews     = faa_nviews(driver,faa_profile)
 
     driver.close()
+
+    os.system("taskkill /f /im chromedriver.exe")
 
     # format output content
     xmlcontent = faa_xmlstats(nviews,nfollowers,nvisitors,str(time.time()))
